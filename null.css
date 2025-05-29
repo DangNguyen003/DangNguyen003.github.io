@@ -43,17 +43,14 @@ body::before {
     justify-content: center; /* Căn giữa theo chiều ngang */
     gap: 20px;
     margin-bottom: 20px;
-    width: 100%;
-    max-width: 1000px; /* Giới hạn chiều rộng tối đa */
-    margin-left: auto; /* Căn giữa container */
-    margin-right: auto; /* Căn giữa container */
+    width: 100%; /* Đảm bảo chiếm toàn bộ chiều rộng */
     padding: 0 10px; /* Thêm padding để tránh dính mép */
 }
 
 /* Navigation Bar */
 .navbar {
     position: relative;
-    width: 100%;
+    width: 100%; /* Đảm bảo navbar chiếm toàn bộ chiều rộng */
     background: rgba(255, 255, 255, 0.95);
     padding: 10px 20px;
     display: flex;
@@ -816,24 +813,24 @@ body::before {
         align-items: center;
         justify-content: center;
         gap: 10px;
-        padding: 0 10px;
+        padding: 0;
+        width: 100%; /* Đảm bảo container chiếm toàn bộ chiều rộng */
     }
 
     .navbar {
         position: relative;
         flex-direction: column;
-        padding: 10px;
-        width: 100%;
+        padding: 10px 0;
+        width: 100%; /* Đảm bảo navbar chiếm toàn bộ chiều rộng */
         text-align: center;
-        max-width: 300px; /* Giới hạn chiều rộng tối đa để tránh kéo dài quá mức */
-        margin-left: auto; /* Căn giữa navbar */
-        margin-right: auto; /* Căn giữa navbar */
+        box-shadow: none; /* Loại bỏ bóng đổ nếu không cần thiết trên mobile */
     }
 
     .nav-item {
         margin: 5px 0;
-        width: 100%;
+        width: 100%; /* Mỗi nav-item chiếm toàn bộ chiều rộng */
         text-align: center;
+        padding: 10px; /* Tăng padding để trông cân đối */
     }
 
     .content {
