@@ -1,0 +1,145 @@
+/* --- CẤU HÌNH CHUNG --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --neon-green: #0f0;
+    --dark-bg: #050505;
+    --terminal-bg: rgba(0, 20, 0, 0.85);
+    --glitch-red: #ff00ff;
+    --glitch-blue: #00ffff;
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: var(--neon-green);
+    font-family: 'Fira Code', monospace;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* --- MATRIX BACKGROUND --- */
+#matrix {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+/* --- CRT SCANLINE EFFECT (Hiệu ứng màn hình lồi cũ) --- */
+.crt-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
+    z-index: 10;
+    animation: flicker 0.15s infinite;
+}
+
+@keyframes flicker {
+    0% { opacity: 0.95; }
+    50% { opacity: 0.85; }
+    100% { opacity: 0.95; }
+}
+
+/* --- CONTAINER --- */
+.container {
+    width: 90%;
+    max-width: 1000px;
+    height: 85vh;
+    border: 2px solid var(--neon-green);
+    background: var(--terminal-bg);
+    box-shadow: 0 0 20px var(--neon-green), inset 0 0 50px rgba(0, 255, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 5;
+    backdrop-filter: blur(5px);
+}
+
+/* --- SYSTEM BAR --- */
+.system-bar {
+    background: var(--neon-green);
+    color: #000;
+    padding: 5px 15px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.blink { animation: blink 1s infinite; color: red; }
+
+/* --- TERMINAL WINDOW --- */
+.terminal-window {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    font-size: 1rem;
+    text-shadow: 0 0 5px var(--neon-green);
+}
+
+/* Scrollbar ảo */
+.terminal-window::-webkit-scrollbar { width: 10px; }
+.terminal-window::-webkit-scrollbar-thumb { background: var(--neon-green); }
+.terminal-window::-webkit-scrollbar-track { background: #002200; }
+
+.prompt { color: #00ffff; margin-right: 10px; }
+.cursor { animation: blink-block 0.8s infinite; background: var(--neon-green); color: #000; padding: 0 5px; }
+
+/* Các class định dạng nội dung */
+.ascii-art { font-size: 0.7rem; line-height: 1; white-space: pre; color: var(--glitch-blue); margin-bottom: 20px; }
+.command-output { margin-bottom: 20px; line-height: 1.5; }
+.highlight { color: #ff00ff; font-weight: bold; }
+.folder { color: #00ffff; }
+.file { color: #fff; }
+
+/* --- NAVIGATION BUTTONS --- */
+.cyber-nav {
+    display: flex;
+    border-top: 2px solid var(--neon-green);
+}
+
+.glitch-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-right: 1px solid var(--neon-green);
+    color: var(--neon-green);
+    padding: 15px;
+    font-family: 'Fira Code', monospace;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.glitch-btn:hover {
+    background: var(--neon-green);
+    color: #000;
+    box-shadow: 0 0 15px var(--neon-green);
+}
+
+/* Animations */
+@keyframes blink { 50% { opacity: 0; } }
+@keyframes blink-block { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .container { width: 100%; height: 100vh; border: none; }
+    .system-bar { font-size: 0.7rem; }
+    .cyber-nav { flex-wrap: wrap; }
+    .glitch-btn { width: 50%; flex: auto; border-bottom: 1px solid var(--neon-green); }
+    .ascii-art { font-size: 0.5rem; }
+}
