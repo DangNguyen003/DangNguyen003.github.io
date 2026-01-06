@@ -6,39 +6,275 @@
     <title>root@dang:~$ system_override</title>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* --- CẤU HÌNH GIAO DIỆN (CSS) --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --neon-green: #0f0;
+            --dark-bg: #050505;
+            --terminal-bg: rgba(0, 15, 0, 0.9);
+            --glitch-blue: #00ffff;
+            --text-shadow: 0 0 5px var(--neon-green);
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--neon-green);
+            font-family: 'Fira Code', monospace;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* MATRIX BACKGROUND */
+        canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+
+        /* CRT EFFECT */
+        .crt-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none; z-index: 10;
+        }
+
+        /* KHUNG CHÍNH */
+        .container {
+            width: 90%; max-width: 1000px; height: 85vh;
+            border: 2px solid var(--neon-green);
+            background: var(--terminal-bg);
+            box-shadow: 0 0 30px var(--neon-green);
+            display: flex; flex-direction: column;
+            position: relative; z-index: 5;
+            border-radius: 5px;
+        }
+
+        /* THANH TIÊU ĐỀ */
+        .system-bar {
+            background: var(--neon-green); color: #000;
+            padding: 8px 15px; font-weight: bold; font-size: 0.9rem;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .blink { animation: blink 1s infinite; color: #c00; margin-right: 5px; }
+
+        /* CỬA SỔ TERMINAL */
+        .terminal-window {
+            flex: 1; padding: 20px; overflow-y: auto;
+            font-size: 1rem; text-shadow: var(--text-shadow);
+            scroll-behavior: smooth;
+        }
+        /* Thanh cuộn ảo */
+        .terminal-window::-webkit-scrollbar { width: 8px; }
+        .terminal-window::-webkit-scrollbar-thumb { background: var(--neon-green); border-radius: 4px; }
+        .terminal-window::-webkit-scrollbar-track { background: #001100; }
+
+        .prompt { color: var(--glitch-blue); margin-right: 10px; }
+        
+        /* Con trỏ nhấp nháy */
+        .cursor { 
+            display: inline-block; width: 10px; height: 18px; 
+            background: var(--neon-green); animation: blink-block 1s infinite; 
+            vertical-align: middle;
+        }
+
+        /* Định dạng nội dung */
+        .command-output { margin-bottom: 15px; line-height: 1.6; word-wrap: break-word; }
+        .ascii-art { font-size: 10px; line-height: 10px; white-space: pre; color: var(--glitch-blue); margin-bottom: 20px; }
+        .highlight { color: #ff00ff; font-weight: bold; }
+        .file { color: #fff; text-decoration: underline; cursor: pointer; }
+        a { color: var(--glitch-blue); text-decoration: none; border-bottom: 1px dashed var(--glitch-blue); }
+        a:hover { background: var(--glitch-blue); color: #000; }
+
+        /* THANH ĐIỀU HƯỚNG */
+        .cyber-nav { display: flex; border-top: 2px solid var(--neon-green); }
+        .glitch-btn {
+            flex: 1; background: transparent; border: none;
+            border-right: 1px solid var(--neon-green);
+            color: var(--neon-green); padding: 15px;
+            font-family: 'Fira Code', monospace; font-size: 1.1rem; font-weight: bold;
+            cursor: pointer; transition: 0.2s;
+        }
+        .glitch-btn:last-child { border-right: none; }
+        .glitch-btn:hover { background: var(--neon-green); color: #000; box-shadow: 0 0 20px var(--neon-green); }
+
+        @keyframes blink { 50% { opacity: 0; } }
+        @keyframes blink-block { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .container { width: 100%; height: 100vh; border: none; }
+            .ascii-art { font-size: 6px; line-height: 6px; }
+            .cyber-nav { flex-wrap: wrap; }
+            .glitch-btn { width: 50%; flex: auto; border-bottom: 1px solid var(--neon-green); }
+        }
+    </style>
 </head>
 <body>
 
     <canvas id="matrix"></canvas>
-
+    
     <div class="crt-overlay"></div>
 
     <div class="container">
         <div class="system-bar">
-            <span class="status"><i class="fas fa-circle blink"></i> SYSTEM: ONLINE</span>
-            <span class="user">USER: NGUYEN_HAI_DANG</span>
-            <span class="ip">IP: 127.0.0.1 :: PORT 1337</span>
+            <span><i class="fas fa-circle blink"></i> ONLINE</span>
+            <span>USER: NGUYEN_HAI_DANG</span>
+            <span>PORT: 1337</span>
         </div>
 
-        <main class="terminal-window">
-            <div id="output">
-                </div>
-            
+        <main class="terminal-window" id="terminal">
+            <div id="output"></div>
             <div class="input-line">
-                <span class="prompt">root@dang:~/portfolio$</span>
-                <span class="cursor">_</span>
+                <span class="prompt">root@dang:~/portfolio$</span><span class="cursor"></span>
             </div>
         </main>
 
         <nav class="cyber-nav">
-            <button class="glitch-btn" onclick="runCommand('cat about.txt')">./ABOUT</button>
-            <button class="glitch-btn" onclick="runCommand('ls -la skills/')">./SKILLS</button>
-            <button class="glitch-btn" onclick="runCommand('cat writeups.log')">./WRITEUPS</button>
-            <button class="glitch-btn" onclick="runCommand('ping contact')">./CONTACT</button>
+            <button class="glitch-btn" onclick="execCmd('cat about.txt')">./ABOUT</button>
+            <button class="glitch-btn" onclick="execCmd('ls -la skills/')">./SKILLS</button>
+            <button class="glitch-btn" onclick="execCmd('cat writeups.log')">./WRITEUPS</button>
+            <button class="glitch-btn" onclick="execCmd('ping contact')">./CONTACT</button>
         </nav>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        /* --- 1. DỮ LIỆU NỘI DUNG (SỬA Ở ĐÂY) --- */
+        const fileSystem = {
+            'about': `
+<span class="highlight">>> CAT ABOUT.TXT</span><br>
+----------------------------------------<br>
+IDENTITY: Nguyen Hai Dang<br>
+ROLE: Security Researcher / CTF Player<br>
+----------------------------------------<br>
+[+] Passionate about breaking things to secure them.<br>
+[+] Focus: Web Security, Reverse Engineering.<br>
+[+] Objective: Sharing knowledge & Strengthening community defense.<br>
+            `,
+            'skills': `
+<span class="highlight">>> LS -LA SKILLS/</span><br>
+drwx------  2 dang dang  4096 May 10 10:00 .<br>
+drwxr-xr-x 10 dang dang  4096 May 10 10:00 ..<br>
+-rwx------  1 dang dang  2048 <span class="file">Burp_Suite_Pro</span><br>
+-rwx------  1 dang dang  1024 <span class="file">Metasploit_Framework</span><br>
+-rwx------  1 dang dang  4096 <span class="file">IDA_Pro_&_Ghidra</span><br>
+-rwx------  1 dang dang  1024 <span class="file">Python_Scripting.py</span><br>
+-rwx------  1 dang dang  1024 <span class="file">C_Cpp_Assembly</span><br>
+-rwx------  1 dang dang  1024 <span class="file">Wireshark_Analysis</span><br>
+            `,
+            'writeups': `
+<span class="highlight">>> CAT WRITEUPS.LOG</span><br>
+[2024-05-12] <a href="#">Breaking_SecureAuth_Bypass.pdf</a><br>
+             > Critical logic flaw found in bounty program.<br><br>
+[2024-03-15] <a href="#">DEFCON_CTF_Crypto_Writeup.txt</a><br>
+             > Solving RSA Padding Oracle attacks.<br><br>
+[2024-02-20] <a href="#">Advanced_Malware_Analysis.md</a><br>
+             > Dissecting APT persistence mechanisms.<br>
+            `,
+            'contact': `
+<span class="highlight">>> PING CONTACT</span><br>
+PING dang-server (127.0.0.1): 56 data bytes<br>
+64 bytes from 127.0.0.1: icmp_seq=0 ttl=64 time=0.034 ms<br>
+<br>
+--- CONTACT INFO ---<br>
+[+] Email: <a href="mailto:danghn0703@gmail.com">danghn0703@gmail.com</a><br>
+[+] Github: <a href="https://github.com/DangNguyen003">github.com/DangNguyen003</a><br>
+[+] Facebook: <a href="https://facebook.com/Hai.Dang.0703">Hai.Dang.0703</a><br>
+            `
+        };
+
+        const introText = `
+<div class="ascii-art">
+  _   _    _    ___   ___   _    _   _  _____ 
+ | \\ | |  / \\  |_ _| |   \\ | |  | \\ | ||  __ |
+ |  \\| | / _ \\  | |  | |\\ \\| |  |  \\| || |  \\|
+ | |\\  |/ ___ \\ | |  | | \\ | |  | |\\  || |__  
+ |_| \\_/_/   \\_\\___| |_|  \\__|  |_| \\_||_____|
+ 
+ Security Researcher | CTF Player
+</div>
+System initialized...<br>
+Loading kernel modules... OK<br>
+Mounting file system... OK<br>
+Welcome, Guest. Select a module below to execute.<br>
+        `;
+
+        /* --- 2. HÀM XỬ LÝ TERMINAL --- */
+        const outputDiv = document.getElementById('output');
+        const terminalWindow = document.getElementById('terminal');
+        const promptHTML = '<span class="prompt">root@dang:~/portfolio$</span>';
+
+        // Hàm in ra màn hình
+        function print(html) {
+            const line = document.createElement('div');
+            line.className = 'command-output';
+            line.innerHTML = html;
+            outputDiv.appendChild(line);
+            terminalWindow.scrollTop = terminalWindow.scrollHeight;
+        }
+
+        // Hàm chạy lệnh
+        function execCmd(cmd) {
+            // 1. Tìm key dựa trên lệnh
+            let key = '';
+            if(cmd.includes('about')) key = 'about';
+            else if(cmd.includes('skills')) key = 'skills';
+            else if(cmd.includes('writeups')) key = 'writeups';
+            else if(cmd.includes('contact')) key = 'contact';
+
+            // 2. In dòng lệnh người dùng vừa chọn
+            print(promptHTML + ' ' + cmd);
+
+            // 3. Giả lập độ trễ xử lý (cho giống thật)
+            setTimeout(() => {
+                if (fileSystem[key]) {
+                    print(fileSystem[key]);
+                } else {
+                    print(`bash: ${cmd}: command not found`);
+                }
+            }, 300);
+        }
+
+        // Chạy Intro khi load web
+        window.onload = () => {
+            print(introText);
+        };
+
+        /* --- 3. HIỆU ỨNG MATRIX RAIN (Giữ nguyên cho đẹp) --- */
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%^&*';
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+
+        function draw() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#0F0';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars.charAt(Math.floor(Math.random() * chars.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        setInterval(draw, 33);
+    </script>
 </body>
 </html>
