@@ -3,131 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nguyen Hai Dang | Security Researcher</title>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="null.css">
+    <title>root@dang:~$ system_override</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <canvas id="cyber-canvas"></canvas>
+    <canvas id="matrix"></canvas>
 
-    <div class="loading-curtain">
-        <div class="loading-content">
-            <div class="loading-logo">HD</div>
-            <div class="loading-spinner"></div>
-            <div class="loading-text">SYSTEM INITIALIZING...</div>
-        </div>
-    </div>
+    <div class="crt-overlay"></div>
 
-    <div class="cursor"></div>
-    <div class="cursor-follower"></div>
-
-    <nav class="navbar" id="navbar">
-        <a href="#about" class="nav-item active"><i class="fas fa-user-secret nav-icon"></i>About</a>
-        <a href="#writeups" class="nav-item"><i class="fas fa-file-code nav-icon"></i>Writeups</a>
-        <a href="#skills" class="nav-item"><i class="fas fa-shield-alt nav-icon"></i>Skills</a>
-        <a href="#interests" class="nav-item"><i class="fas fa-fingerprint nav-icon"></i>Interests</a>
-    </nav>
-
-    <div class="content">
-        <div class="header-container">
-            <div class="avatar-container">
-                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Dang&backgroundColor=050505" alt="Avatar" class="avatar-image">
-            </div>
-            <h1 class="blog-title">Nguyen Hai Dang</h1>
-            <div class="blog-subtitle">Security Researcher & CTF Player</div>
-            <div class="contact-info">
-                Email: <a href="mailto:danghn0703@gmail.com" class="email">danghn0703@gmail.com</a>
-            </div>
+    <div class="container">
+        <div class="system-bar">
+            <span class="status"><i class="fas fa-circle blink"></i> SYSTEM: ONLINE</span>
+            <span class="user">USER: NGUYEN_HAI_DANG</span>
+            <span class="ip">IP: 127.0.0.1 :: PORT 1337</span>
         </div>
 
-        <div class="content-sections">
+        <main class="terminal-window">
+            <div id="output">
+                </div>
             
-            <div class="content-section active" id="about">
-                <h2 class="section-title">/root/about_me</h2>
-                <p class="about-text">
-                    I'm Dang, a passionate cybersecurity enthusiast and CTF player. With experience in the field of information security, I’m always seeking new challenges and opportunities to enhance my skills. I believe that sharing knowledge and experiences is the best way to strengthen the cybersecurity community.
-                </p>
-                <div class="social-links">
-                    <a href="https://github.com/DangNguyen003" class="social-icon"><i class="fab fa-github"></i></a>
-                    <a href="mailto:danghn0703@gmail.com" class="social-icon"><i class="fas fa-envelope"></i></a>
-                    <a href="https://www.facebook.com/Hai.Dang.0703" class="social-icon"><i class="fab fa-facebook-f"></i></a>
-                </div>
+            <div class="input-line">
+                <span class="prompt">root@dang:~/portfolio$</span>
+                <span class="cursor">_</span>
             </div>
+        </main>
 
-            <div class="content-section" id="writeups">
-                <h2 class="section-title">/var/www/writeups</h2>
-                
-                <div class="writeup-item">
-                    <div class="writeup-title">Breaking SecureAuth: A Deep Dive into Authentication Bypass</div>
-                    <div class="writeup-meta">
-                        <span class="writeup-category">WEB</span>
-                        <span>May 2024</span>
-                    </div>
-                    <div class="writeup-description">
-                        A detailed analysis of an authentication bypass vulnerability discovered in a bug bounty program.
-                    </div>
-                    <div class="writeup-tags">
-                        <span class="tag">Auth Bypass</span>
-                        <span class="tag">Bug Bounty</span>
-                    </div>
-                </div>
-
-                <div class="writeup-item">
-                    <div class="writeup-title">CTF Challenge: CryptoConundrum Solutions</div>
-                    <div class="writeup-meta">
-                        <span class="writeup-category">CRYPTO</span>
-                        <span>March 2024</span>
-                    </div>
-                    <div class="writeup-description">
-                        Detailed guide on solving complex cryptography challenges from DEFCON CTF.
-                    </div>
-                    <div class="writeup-tags">
-                        <span class="tag">RSA</span>
-                        <span class="tag">Math</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="content-section" id="skills">
-                <h2 class="section-title">/usr/bin/skills</h2>
-                <div class="skills-grid">
-                    <div class="skill-category">
-                        <h3>Technical Skills</h3>
-                        <div class="skill-item">Penetration Testing</div>
-                        <div class="skill-item">Web App Security</div>
-                        <div class="skill-item">Reverse Engineering</div>
-                    </div>
-                    <div class="skill-category">
-                        <h3>Languages</h3>
-                        <div class="skill-item">Python</div>
-                        <div class="skill-item">C++</div>
-                        <div class="skill-item">JavaScript</div>
-                    </div>
-                    <div class="skill-category">
-                        <h3>Tools</h3>
-                        <div class="skill-item">Burp Suite</div>
-                        <div class="skill-item">Metasploit</div>
-                        <div class="skill-item">Wireshark</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="content-section" id="interests">
-                <h2 class="section-title">/home/user/activities</h2>
-                <div class="interests-grid">
-                    <div class="interest-item">Cyber Research</div>
-                    <div class="interest-item">CTF</div>
-                    <div class="interest-item">Coding</div>
-                    <div class="interest-item">Gaming</div>
-                    <div class="interest-item">Travel</div>
-                </div>
-            </div>
-
-        </div>
+        <nav class="cyber-nav">
+            <button class="glitch-btn" onclick="runCommand('cat about.txt')">./ABOUT</button>
+            <button class="glitch-btn" onclick="runCommand('ls -la skills/')">./SKILLS</button>
+            <button class="glitch-btn" onclick="runCommand('cat writeups.log')">./WRITEUPS</button>
+            <button class="glitch-btn" onclick="runCommand('ping contact')">./CONTACT</button>
+        </nav>
     </div>
 
-    <script src="null.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
