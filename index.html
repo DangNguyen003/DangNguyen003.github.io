@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>root@dang:~$ NguyenHaiDang</title>
+    <title>root@dang:~$ system_override</title>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -116,8 +116,15 @@
             .ascii-art { font-size: 6px; line-height: 6px; }
             .cyber-nav { flex-wrap: wrap; }
             .glitch-btn { width: 50%; flex: auto; border-bottom: 1px solid var(--neon-green); font-size: 0.9rem;}
-            td { display: block; padding-bottom: 5px; } /* Trên mobile thì vỡ bảng ra cho dễ đọc */
-            tr { margin-bottom: 10px; display: block; border-bottom: 1px dashed #333; }
+            
+            /* Xử lý bảng trên mobile: Biến thành dạng danh sách dọc */
+            table, tbody, tr, td { display: block; width: 100%; }
+            tr { margin-bottom: 10px; border-bottom: 1px dashed #333; padding-bottom: 5px; }
+            td { padding: 0; text-align: left; }
+            
+            /* Ẩn các cột không quan trọng trên mobile (quyền hạn, user, size) */
+            /* Chỉ giữ lại Ngày tháng và Tên file */
+            .hide-on-mobile { display: none; }
         }
     </style>
 </head>
@@ -150,7 +157,7 @@
     </div>
 
     <script>
-        /* --- 1. DỮ LIỆU NỘI DUNG --- */
+        /* --- 1. DỮ LIỆU NỘI DUNG (ĐÃ CHỈNH SỬA CĂN DÒNG) --- */
         const fileSystem = {
             'about': `
 <div style="margin-bottom: 10px;">
@@ -172,43 +179,43 @@
   <span class="highlight">>> LS -LA SKILLS/</span><br>
   <table style="width:100%; color: var(--neon-green); font-size: 0.9rem;">
     <tr>
-        <td style="color:#888">drwx------</td>
-        <td style="color:#888">2</td>
-        <td style="color:#888">dang</td>
-        <td style="color:#888">4096</td>
+        <td class="hide-on-mobile" style="color:#888">drwx------</td>
+        <td class="hide-on-mobile" style="color:#888">2</td>
+        <td class="hide-on-mobile" style="color:#888">dang</td>
+        <td class="hide-on-mobile" style="color:#888">4096</td>
         <td style="color:#888">May 10</td>
         <td style="color:#00ffff">.</td>
     </tr>
     <tr>
-        <td style="color:#888">drwxr-xr-x</td>
-        <td style="color:#888">10</td>
-        <td style="color:#888">dang</td>
-        <td style="color:#888">4096</td>
+        <td class="hide-on-mobile" style="color:#888">drwxr-xr-x</td>
+        <td class="hide-on-mobile" style="color:#888">10</td>
+        <td class="hide-on-mobile" style="color:#888">dang</td>
+        <td class="hide-on-mobile" style="color:#888">4096</td>
         <td style="color:#888">May 10</td>
         <td style="color:#00ffff">..</td>
     </tr>
     <tr>
-        <td>-rwx------</td><td>1</td><td>dang</td><td>2048</td><td>May 12</td>
+        <td class="hide-on-mobile">-rwx------</td><td class="hide-on-mobile">1</td><td class="hide-on-mobile">dang</td><td class="hide-on-mobile">2048</td><td>May 12</td>
         <td class="file">Burp_Suite_Pro</td>
     </tr>
     <tr>
-        <td>-rwx------</td><td>1</td><td>dang</td><td>1024</td><td>Apr 28</td>
+        <td class="hide-on-mobile">-rwx------</td><td class="hide-on-mobile">1</td><td class="hide-on-mobile">dang</td><td class="hide-on-mobile">1024</td><td>Apr 28</td>
         <td class="file">Metasploit_Framework</td>
     </tr>
     <tr>
-        <td>-rwx------</td><td>1</td><td>dang</td><td>4096</td><td>Jun 01</td>
+        <td class="hide-on-mobile">-rwx------</td><td class="hide-on-mobile">1</td><td class="hide-on-mobile">dang</td><td class="hide-on-mobile">4096</td><td>Jun 01</td>
         <td class="file">IDA_Pro_&_Ghidra</td>
     </tr>
     <tr>
-        <td>-rwx------</td><td>1</td><td>dang</td><td>1024</td><td>Mar 15</td>
+        <td class="hide-on-mobile">-rwx------</td><td class="hide-on-mobile">1</td><td class="hide-on-mobile">dang</td><td class="hide-on-mobile">1024</td><td>Mar 15</td>
         <td class="file">Python_Scripting.py</td>
     </tr>
     <tr>
-        <td>-rwx------</td><td>1</td><td>dang</td><td>1024</td><td>Feb 20</td>
-        <td class="file">C_Cpp</td>
+        <td class="hide-on-mobile">-rwx------</td><td class="hide-on-mobile">1</td><td class="hide-on-mobile">dang</td><td class="hide-on-mobile">1024</td><td>Feb 20</td>
+        <td class="file">C_Cpp_Assembly</td>
     </tr>
     <tr>
-        <td>-rwx------</td><td>1</td><td>dang</td><td>1024</td><td>Jan 10</td>
+        <td class="hide-on-mobile">-rwx------</td><td class="hide-on-mobile">1</td><td class="hide-on-mobile">dang</td><td class="hide-on-mobile">1024</td><td>Jan 10</td>
         <td class="file">Wireshark_Analysis</td>
     </tr>
   </table>
@@ -219,13 +226,13 @@
 <div style="margin-bottom: 10px;">
   <span class="highlight">>> CAT WRITEUPS.LOG</span><br><br>
   
-  <span style="color:#888">[2024-05-12]</span> <a href="#">Breaking_SecureAuth_Bypass.pdf</a><br>
+  <span style="color:#888">[2024-05-12]</span> <a href="#" target="_blank">Breaking_SecureAuth_Bypass.pdf</a><br>
   &nbsp;&nbsp;> Critical logic flaw found in bounty program.<br><br>
 
-  <span style="color:#888">[2024-03-15]</span> <a href="#">DEFCON_CTF_Crypto_Writeup.txt</a><br>
+  <span style="color:#888">[2024-03-15]</span> <a href="#" target="_blank">DEFCON_CTF_Crypto_Writeup.txt</a><br>
   &nbsp;&nbsp;> Solving RSA Padding Oracle attacks.<br><br>
 
-  <span style="color:#888">[2024-02-20]</span> <a href="#">Advanced_Malware_Analysis.md</a><br>
+  <span style="color:#888">[2024-02-20]</span> <a href="#" target="_blank">Advanced_Malware_Analysis.md</a><br>
   &nbsp;&nbsp;> Dissecting APT persistence mechanisms.<br>
 </div>
             `,
@@ -244,11 +251,11 @@
     </tr>
     <tr>
       <td style="padding-right: 15px;">[+] Github:</td>
-      <td><a href="https://github.com/DangNguyen003">github.com/DangNguyen003</a></td>
+      <td><a href="https://github.com/DangNguyen003" target="_blank">github.com/DangNguyen003</a></td>
     </tr>
     <tr>
       <td style="padding-right: 15px;">[+] Facebook:</td>
-      <td><a href="https://facebook.com/Hai.Dang.k66">Hải Đăng</a></td>
+      <td><a href="https://facebook.com/Hai.Dang.k66" target="_blank">Hải Đăng</a></td>
     </tr>
   </table>
 </div>
@@ -348,7 +355,3 @@ Welcome, Guest. Select a module below to execute.<br>
     </script>
 </body>
 </html>
-
-
-
-
