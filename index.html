@@ -14,7 +14,7 @@
         :root {
             --neon-green: #0f0;
             --dark-bg: #050505;
-            --terminal-bg: rgba(0, 15, 0, 0.9);
+            --terminal-bg: rgba(0, 15, 0, 0.92);
             --glitch-blue: #00ffff;
             --text-shadow: 0 0 5px var(--neon-green);
         }
@@ -33,7 +33,7 @@
         /* MATRIX BACKGROUND */
         canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
 
-        /* CRT EFFECT */
+        /* CRT EFFECT - Hiệu ứng màn hình cũ */
         .crt-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
@@ -44,7 +44,7 @@
 
         /* KHUNG CHÍNH */
         .container {
-            width: 90%; max-width: 1000px; height: 85vh;
+            width: 95%; max-width: 1100px; height: 90vh;
             border: 2px solid var(--neon-green);
             background: var(--terminal-bg);
             box-shadow: 0 0 30px var(--neon-green);
@@ -83,12 +83,18 @@
 
         /* Định dạng nội dung */
         .command-output { margin-bottom: 15px; line-height: 1.6; word-wrap: break-word; }
-        .ascii-art { font-size: 10px; line-height: 10px; white-space: pre; color: var(--glitch-blue); margin-bottom: 20px; }
+        .ascii-art { font-size: 10px; line-height: 10px; white-space: pre; color: var(--glitch-blue); margin-bottom: 20px; font-weight: bold;}
         .highlight { color: #ff00ff; font-weight: bold; }
-        .file { color: #fff; text-decoration: underline; cursor: pointer; }
-        a { color: var(--glitch-blue); text-decoration: none; border-bottom: 1px dashed var(--glitch-blue); }
+        .file { color: #fff; font-weight: bold; }
+        
+        /* Link styles */
+        a { color: var(--glitch-blue); text-decoration: none; border-bottom: 1px dashed var(--glitch-blue); transition: 0.3s; }
         a:hover { background: var(--glitch-blue); color: #000; }
 
+        /* Bảng căn chỉnh dữ liệu */
+        table { width: 100%; border-collapse: collapse; }
+        td { padding: 2px 10px 2px 0; vertical-align: top; }
+        
         /* THANH ĐIỀU HƯỚNG */
         .cyber-nav { display: flex; border-top: 2px solid var(--neon-green); }
         .glitch-btn {
@@ -104,12 +110,14 @@
         @keyframes blink { 50% { opacity: 0; } }
         @keyframes blink-block { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        /* Mobile */
+        /* Mobile Responsive */
         @media (max-width: 768px) {
             .container { width: 100%; height: 100vh; border: none; }
             .ascii-art { font-size: 6px; line-height: 6px; }
             .cyber-nav { flex-wrap: wrap; }
-            .glitch-btn { width: 50%; flex: auto; border-bottom: 1px solid var(--neon-green); }
+            .glitch-btn { width: 50%; flex: auto; border-bottom: 1px solid var(--neon-green); font-size: 0.9rem;}
+            td { display: block; padding-bottom: 5px; } /* Trên mobile thì vỡ bảng ra cho dễ đọc */
+            tr { margin-bottom: 10px; display: block; border-bottom: 1px dashed #333; }
         }
     </style>
 </head>
@@ -142,47 +150,108 @@
     </div>
 
     <script>
-        /* --- 1. DỮ LIỆU NỘI DUNG (SỬA Ở ĐÂY) --- */
+        /* --- 1. DỮ LIỆU NỘI DUNG (ĐÃ CHỈNH SỬA CĂN DÒNG) --- */
         const fileSystem = {
             'about': `
-<span class="highlight">>> CAT ABOUT.TXT</span><br>
-----------------------------------------<br>
-IDENTITY: Nguyen Hai Dang<br>
-ROLE: Security Researcher / CTF Player<br>
-----------------------------------------<br>
-[+] Passionate about breaking things to secure them.<br>
-[+] Focus: Web Security, Reverse Engineering.<br>
-[+] Objective: Sharing knowledge & Strengthening community defense.<br>
+<div style="margin-bottom: 10px;">
+  <span class="highlight">>> CAT ABOUT.TXT</span><br>
+  ----------------------------------------<br>
+  IDENTITY: <span style="color:#fff">Nguyen Hai Dang</span><br>
+  ROLE:     <span style="color:#fff">Security Researcher / CTF Player</span><br>
+  LOCATION: <span style="color:#fff">Vietnam</span><br>
+  ----------------------------------------<br>
+  <br>
+  [+] Passionate about breaking things to secure them.<br>
+  [+] Focus: <span style="color:#00ffff">Web Security</span>, <span style="color:#00ffff">Reverse Engineering</span>.<br>
+  [+] Objective: Sharing knowledge & Strengthening community defense.<br>
+</div>
             `,
+            
             'skills': `
-<span class="highlight">>> LS -LA SKILLS/</span><br>
-drwx------  2 dang dang  4096 May 10 10:00 .<br>
-drwxr-xr-x 10 dang dang  4096 May 10 10:00 ..<br>
--rwx------  1 dang dang  2048 <span class="file">Burp_Suite_Pro</span><br>
--rwx------  1 dang dang  1024 <span class="file">Metasploit_Framework</span><br>
--rwx------  1 dang dang  4096 <span class="file">IDA_Pro_&_Ghidra</span><br>
--rwx------  1 dang dang  1024 <span class="file">Python_Scripting.py</span><br>
--rwx------  1 dang dang  1024 <span class="file">C_Cpp_Assembly</span><br>
--rwx------  1 dang dang  1024 <span class="file">Wireshark_Analysis</span><br>
+<div style="margin-bottom: 10px;">
+  <span class="highlight">>> LS -LA SKILLS/</span><br>
+  <table style="width:100%; color: var(--neon-green); font-size: 0.9rem;">
+    <tr>
+        <td style="color:#888">drwx------</td>
+        <td style="color:#888">2</td>
+        <td style="color:#888">dang</td>
+        <td style="color:#888">4096</td>
+        <td style="color:#888">May 10</td>
+        <td style="color:#00ffff">.</td>
+    </tr>
+    <tr>
+        <td style="color:#888">drwxr-xr-x</td>
+        <td style="color:#888">10</td>
+        <td style="color:#888">dang</td>
+        <td style="color:#888">4096</td>
+        <td style="color:#888">May 10</td>
+        <td style="color:#00ffff">..</td>
+    </tr>
+    <tr>
+        <td>-rwx------</td><td>1</td><td>dang</td><td>2048</td><td>May 12</td>
+        <td class="file">Burp_Suite_Pro</td>
+    </tr>
+    <tr>
+        <td>-rwx------</td><td>1</td><td>dang</td><td>1024</td><td>Apr 28</td>
+        <td class="file">Metasploit_Framework</td>
+    </tr>
+    <tr>
+        <td>-rwx------</td><td>1</td><td>dang</td><td>4096</td><td>Jun 01</td>
+        <td class="file">IDA_Pro_&_Ghidra</td>
+    </tr>
+    <tr>
+        <td>-rwx------</td><td>1</td><td>dang</td><td>1024</td><td>Mar 15</td>
+        <td class="file">Python_Scripting.py</td>
+    </tr>
+    <tr>
+        <td>-rwx------</td><td>1</td><td>dang</td><td>1024</td><td>Feb 20</td>
+        <td class="file">C_Cpp_Assembly</td>
+    </tr>
+    <tr>
+        <td>-rwx------</td><td>1</td><td>dang</td><td>1024</td><td>Jan 10</td>
+        <td class="file">Wireshark_Analysis</td>
+    </tr>
+  </table>
+</div>
             `,
+
             'writeups': `
-<span class="highlight">>> CAT WRITEUPS.LOG</span><br>
-[2024-05-12] <a href="#">Breaking_SecureAuth_Bypass.pdf</a><br>
-             > Critical logic flaw found in bounty program.<br><br>
-[2024-03-15] <a href="#">DEFCON_CTF_Crypto_Writeup.txt</a><br>
-             > Solving RSA Padding Oracle attacks.<br><br>
-[2024-02-20] <a href="#">Advanced_Malware_Analysis.md</a><br>
-             > Dissecting APT persistence mechanisms.<br>
+<div style="margin-bottom: 10px;">
+  <span class="highlight">>> CAT WRITEUPS.LOG</span><br><br>
+  
+  <span style="color:#888">[2024-05-12]</span> <a href="#">Breaking_SecureAuth_Bypass.pdf</a><br>
+  &nbsp;&nbsp;> Critical logic flaw found in bounty program.<br><br>
+
+  <span style="color:#888">[2024-03-15]</span> <a href="#">DEFCON_CTF_Crypto_Writeup.txt</a><br>
+  &nbsp;&nbsp;> Solving RSA Padding Oracle attacks.<br><br>
+
+  <span style="color:#888">[2024-02-20]</span> <a href="#">Advanced_Malware_Analysis.md</a><br>
+  &nbsp;&nbsp;> Dissecting APT persistence mechanisms.<br>
+</div>
             `,
+
             'contact': `
-<span class="highlight">>> PING CONTACT</span><br>
-PING dang-server (127.0.0.1): 56 data bytes<br>
-64 bytes from 127.0.0.1: icmp_seq=0 ttl=64 time=0.034 ms<br>
-<br>
---- CONTACT INFO ---<br>
-[+] Email: <a href="mailto:danghn0703@gmail.com">danghn0703@gmail.com</a><br>
-[+] Github: <a href="https://github.com/DangNguyen003">github.com/DangNguyen003</a><br>
-[+] Facebook: <a href="https://facebook.com/Hai.Dang.0703">Hai.Dang.0703</a><br>
+<div style="margin-bottom: 10px;">
+  <span class="highlight">>> PING CONTACT</span><br>
+  PING dang-server (127.0.0.1): 56 data bytes<br>
+  64 bytes from 127.0.0.1: icmp_seq=0 ttl=64 time=0.034 ms<br>
+  <br>
+  --- CONTACT INFO ---<br>
+  <table style="color: var(--neon-green); width: auto;">
+    <tr>
+      <td style="padding-right: 15px;">[+] Email:</td>
+      <td><a href="mailto:danghn0703@gmail.com">danghn0703@gmail.com</a></td>
+    </tr>
+    <tr>
+      <td style="padding-right: 15px;">[+] Github:</td>
+      <td><a href="https://github.com/DangNguyen003">github.com/DangNguyen003</a></td>
+    </tr>
+    <tr>
+      <td style="padding-right: 15px;">[+] Facebook:</td>
+      <td><a href="https://facebook.com/Hai.Dang.0703">Hai.Dang.0703</a></td>
+    </tr>
+  </table>
+</div>
             `
         };
 
@@ -213,6 +282,7 @@ Welcome, Guest. Select a module below to execute.<br>
             line.className = 'command-output';
             line.innerHTML = html;
             outputDiv.appendChild(line);
+            // Cuộn xuống cuối
             terminalWindow.scrollTop = terminalWindow.scrollHeight;
         }
 
@@ -243,7 +313,7 @@ Welcome, Guest. Select a module below to execute.<br>
             print(introText);
         };
 
-        /* --- 3. HIỆU ỨNG MATRIX RAIN (Giữ nguyên cho đẹp) --- */
+        /* --- 3. HIỆU ỨNG MATRIX RAIN --- */
         const canvas = document.getElementById('matrix');
         const ctx = canvas.getContext('2d');
 
