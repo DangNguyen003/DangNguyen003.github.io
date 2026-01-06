@@ -2,21 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>root@dang:~$ system_override</title>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* --- CẤU HÌNH GIAO DIỆN (CSS) --- */
+        /* --- 1. CẤU HÌNH GIAO DIỆN CHUNG --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
             --neon-green: #0f0;
             --dark-bg: #050505;
-            --terminal-bg: rgba(0, 15, 0, 0.92);
+            --terminal-bg: rgba(0, 15, 0, 0.93);
             --glitch-blue: #00ffff;
-            --text-shadow: 0 0 5px var(--neon-green);
+            --text-shadow: 0 0 4px var(--neon-green);
         }
 
         body {
@@ -24,121 +24,164 @@
             color: var(--neon-green);
             font-family: 'Fira Code', monospace;
             height: 100vh;
+            height: 100dvh; /* Fix lỗi chiều cao trên mobile */
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        /* MATRIX BACKGROUND */
-        canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        /* --- 2. HIỆU ỨNG NỀN (MATRIX & CRT) --- */
+        canvas#matrix { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
 
-        /* CRT EFFECT - Hiệu ứng màn hình cũ */
         .crt-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
                         linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
             background-size: 100% 2px, 3px 100%;
             pointer-events: none; z-index: 10;
+            animation: flicker 0.15s infinite;
         }
 
-        /* KHUNG CHÍNH */
+        @keyframes flicker {
+            0% { opacity: 0.97; }
+            50% { opacity: 0.9; }
+            100% { opacity: 0.97; }
+        }
+
+        /* --- 3. KHUNG TERMINAL CHÍNH --- */
         .container {
-            width: 95%; max-width: 1100px; height: 90vh;
+            width: 95%; max-width: 1000px; height: 90vh;
             border: 2px solid var(--neon-green);
             background: var(--terminal-bg);
-            box-shadow: 0 0 30px var(--neon-green);
+            box-shadow: 0 0 25px var(--neon-green), inset 0 0 20px rgba(0, 255, 0, 0.1);
             display: flex; flex-direction: column;
             position: relative; z-index: 5;
-            border-radius: 5px;
+            border-radius: 4px;
+            backdrop-filter: blur(3px);
         }
 
-        /* THANH TIÊU ĐỀ */
+        /* Thanh tiêu đề trên cùng */
         .system-bar {
             background: var(--neon-green); color: #000;
-            padding: 8px 15px; font-weight: bold; font-size: 0.9rem;
+            padding: 8px 15px; font-weight: bold; font-size: 0.85rem;
             display: flex; justify-content: space-between; align-items: center;
+            flex-shrink: 0; border-bottom: 1px solid var(--neon-green);
         }
-        .blink { animation: blink 1s infinite; color: #c00; margin-right: 5px; }
+        .blink-led { animation: blink 1s infinite; color: #c00; margin-right: 6px; }
 
-        /* CỬA SỔ TERMINAL */
+        /* Khu vực hiển thị nội dung */
         .terminal-window {
-            flex: 1; padding: 20px; overflow-y: auto;
-            font-size: 1rem; text-shadow: var(--text-shadow);
+            flex: 1; padding: 20px; 
+            overflow-y: auto; 
+            overflow-x: hidden;
+            font-size: 1rem; 
+            text-shadow: var(--text-shadow);
             scroll-behavior: smooth;
         }
-        /* Thanh cuộn ảo */
-        .terminal-window::-webkit-scrollbar { width: 8px; }
-        .terminal-window::-webkit-scrollbar-thumb { background: var(--neon-green); border-radius: 4px; }
+
+        /* Thanh cuộn tùy chỉnh */
+        .terminal-window::-webkit-scrollbar { width: 6px; }
+        .terminal-window::-webkit-scrollbar-thumb { background: var(--neon-green); border-radius: 3px; }
         .terminal-window::-webkit-scrollbar-track { background: #001100; }
 
-        .prompt { color: var(--glitch-blue); margin-right: 10px; }
-        
-        /* Con trỏ nhấp nháy */
+        /* Dòng lệnh & Con trỏ */
+        .input-line { display: flex; align-items: center; flex-wrap: wrap; }
+        .prompt { color: var(--glitch-blue); margin-right: 10px; font-weight: bold; }
         .cursor { 
             display: inline-block; width: 10px; height: 18px; 
             background: var(--neon-green); animation: blink-block 1s infinite; 
-            vertical-align: middle;
         }
 
-        /* Định dạng nội dung */
-        .command-output { margin-bottom: 15px; line-height: 1.6; word-wrap: break-word; }
-        .ascii-art { font-size: 10px; line-height: 10px; white-space: pre; color: var(--glitch-blue); margin-bottom: 20px; font-weight: bold;}
+        /* Định dạng văn bản nội dung */
+        .command-output { margin-bottom: 20px; line-height: 1.5; width: 100%; }
+        
+        .ascii-art { 
+            font-size: 10px; line-height: 10px; white-space: pre; 
+            color: var(--glitch-blue); margin-bottom: 20px; font-weight: bold;
+            overflow-x: hidden;
+        }
+        
         .highlight { color: #ff00ff; font-weight: bold; }
         .file { color: #fff; font-weight: bold; }
+        .dir { color: var(--glitch-blue); font-weight: bold; }
         
-        /* Link styles */
-        a { color: var(--glitch-blue); text-decoration: none; border-bottom: 1px dashed var(--glitch-blue); transition: 0.3s; }
+        a { color: var(--glitch-blue); text-decoration: none; border-bottom: 1px dashed var(--glitch-blue); transition: 0.2s; }
         a:hover { background: var(--glitch-blue); color: #000; }
 
-        /* Bảng căn chỉnh dữ liệu */
-        table { width: 100%; border-collapse: collapse; }
-        td { padding: 2px 10px 2px 0; vertical-align: top; }
-        
-        /* THANH ĐIỀU HƯỚNG */
-        .cyber-nav { display: flex; border-top: 2px solid var(--neon-green); }
+        /* Bảng dữ liệu (Skills) */
+        .table-container { width: 100%; overflow-x: auto; } /* Cho phép cuộn ngang */
+        table { width: 100%; border-collapse: collapse; min-width: 600px; } /* Min width để giữ form */
+        td { padding: 2px 15px 2px 0; vertical-align: top; white-space: nowrap; }
+
+        /* --- 4. THANH ĐIỀU HƯỚNG --- */
+        .cyber-nav { 
+            display: flex; 
+            border-top: 2px solid var(--neon-green); 
+            flex-shrink: 0; 
+        }
         .glitch-btn {
             flex: 1; background: transparent; border: none;
             border-right: 1px solid var(--neon-green);
             color: var(--neon-green); padding: 15px;
-            font-family: 'Fira Code', monospace; font-size: 1.1rem; font-weight: bold;
-            cursor: pointer; transition: 0.2s;
+            font-family: 'Fira Code', monospace; font-size: 1rem; font-weight: bold;
+            cursor: pointer; transition: 0.2s; text-transform: uppercase;
         }
         .glitch-btn:last-child { border-right: none; }
-        .glitch-btn:hover { background: var(--neon-green); color: #000; box-shadow: 0 0 20px var(--neon-green); }
+        .glitch-btn:active, .glitch-btn:hover { 
+            background: var(--neon-green); color: #000; 
+            box-shadow: 0 0 20px var(--neon-green); 
+        }
 
         @keyframes blink { 50% { opacity: 0; } }
         @keyframes blink-block { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        /* Mobile Responsive */
+        /* --- 5. TỐI ƯU CHO ĐIỆN THOẠI (MOBILE RESPONSIVE) --- */
         @media (max-width: 768px) {
-            .container { width: 100%; height: 100vh; border: none; }
-            .ascii-art { font-size: 6px; line-height: 6px; }
+            .container { 
+                width: 100%; height: 100dvh; 
+                border: none; border-radius: 0; 
+                box-shadow: none;
+            }
+            
+            .system-bar { padding: 5px 10px; font-size: 0.7rem; }
+            
+            /* Thu nhỏ font chữ để hiển thị nhiều hơn */
+            .terminal-window { padding: 10px; font-size: 0.85rem; }
+            .ascii-art { font-size: 5px; line-height: 6px; } /* Thu nhỏ logo */
+            
+            /* Nút bấm chia thành 2 hàng cho dễ ấn */
             .cyber-nav { flex-wrap: wrap; }
-            .glitch-btn { width: 50%; flex: auto; border-bottom: 1px solid var(--neon-green); font-size: 0.9rem;}
+            .glitch-btn { 
+                width: 50%; flex: auto; 
+                border-bottom: 1px solid var(--neon-green); 
+                border-right: 1px solid var(--neon-green);
+                padding: 12px 5px;
+            }
+            .glitch-btn:nth-child(even) { border-right: none; }
+            .glitch-btn:nth-last-child(-n+2) { border-bottom: none; } /* Bỏ viền dưới hàng cuối */
+
+            /* Căn chỉnh prompt */
+            .prompt { font-size: 0.8rem; margin-right: 5px; }
+            .cursor { height: 14px; width: 8px; }
             
-            /* Xử lý bảng trên mobile: Biến thành dạng danh sách dọc */
-            table, tbody, tr, td { display: block; width: 100%; }
-            tr { margin-bottom: 10px; border-bottom: 1px dashed #333; padding-bottom: 5px; }
-            td { padding: 0; text-align: left; }
-            
-            /* Ẩn các cột không quan trọng trên mobile (quyền hạn, user, size) */
-            /* Chỉ giữ lại Ngày tháng và Tên file */
-            .hide-on-mobile { display: none; }
+            /* Scroll hint */
+            .mobile-hint { display: block !important; color: #666; font-size: 0.7rem; margin-top: 5px; font-style: italic; }
         }
+        
+        .mobile-hint { display: none; }
     </style>
 </head>
 <body>
 
     <canvas id="matrix"></canvas>
-    
     <div class="crt-overlay"></div>
 
     <div class="container">
         <div class="system-bar">
-            <span><i class="fas fa-circle blink"></i> ONLINE</span>
+            <span><i class="fas fa-circle blink-led"></i> ONLINE</span>
             <span>USER: NGUYEN_HAI_DANG</span>
-            <span>PORT: 1337</span>
+            <span>IP: 127.0.0.1</span>
         </div>
 
         <main class="terminal-window" id="terminal">
@@ -157,7 +200,7 @@
     </div>
 
     <script>
-        /* --- 1. DỮ LIỆU NỘI DUNG (ĐÃ CHỈNH SỬA CĂN DÒNG) --- */
+        /* --- DỮ LIỆU NỘI DUNG --- */
         const fileSystem = {
             'about': `
 <div style="margin-bottom: 10px;">
@@ -177,48 +220,19 @@
             'skills': `
 <div style="margin-bottom: 10px;">
   <span class="highlight">>> LS -LA SKILLS/</span><br>
-  <table style="width:100%; color: var(--neon-green); font-size: 0.9rem;">
-    <tr>
-        <td class="hide-on-mobile" style="color:#888">drwx------</td>
-        <td class="hide-on-mobile" style="color:#888">2</td>
-        <td class="hide-on-mobile" style="color:#888">dang</td>
-        <td class="hide-on-mobile" style="color:#888">4096</td>
-        <td style="color:#888">May 10</td>
-        <td style="color:#00ffff">.</td>
-    </tr>
-    <tr>
-        <td class="hide-on-mobile" style="color:#888">drwxr-xr-x</td>
-        <td class="hide-on-mobile" style="color:#888">10</td>
-        <td class="hide-on-mobile" style="color:#888">dang</td>
-        <td class="hide-on-mobile" style="color:#888">4096</td>
-        <td style="color:#888">May 10</td>
-        <td style="color:#00ffff">..</td>
-    </tr>
-    <tr>
-        <td class="hide-on-mobile">-rwx------</td><td class="hide-on-mobile">1</td><td class="hide-on-mobile">dang</td><td class="hide-on-mobile">2048</td><td>May 12</td>
-        <td class="file">Burp_Suite_Pro</td>
-    </tr>
-    <tr>
-        <td class="hide-on-mobile">-rwx------</td><td class="hide-on-mobile">1</td><td class="hide-on-mobile">dang</td><td class="hide-on-mobile">1024</td><td>Apr 28</td>
-        <td class="file">Metasploit_Framework</td>
-    </tr>
-    <tr>
-        <td class="hide-on-mobile">-rwx------</td><td class="hide-on-mobile">1</td><td class="hide-on-mobile">dang</td><td class="hide-on-mobile">4096</td><td>Jun 01</td>
-        <td class="file">IDA_Pro_&_Ghidra</td>
-    </tr>
-    <tr>
-        <td class="hide-on-mobile">-rwx------</td><td class="hide-on-mobile">1</td><td class="hide-on-mobile">dang</td><td class="hide-on-mobile">1024</td><td>Mar 15</td>
-        <td class="file">Python_Scripting.py</td>
-    </tr>
-    <tr>
-        <td class="hide-on-mobile">-rwx------</td><td class="hide-on-mobile">1</td><td class="hide-on-mobile">dang</td><td class="hide-on-mobile">1024</td><td>Feb 20</td>
-        <td class="file">C_Cpp_Assembly</td>
-    </tr>
-    <tr>
-        <td class="hide-on-mobile">-rwx------</td><td class="hide-on-mobile">1</td><td class="hide-on-mobile">dang</td><td class="hide-on-mobile">1024</td><td>Jan 10</td>
-        <td class="file">Wireshark_Analysis</td>
-    </tr>
-  </table>
+  <div class="table-container">
+      <table style="color: var(--neon-green); font-size: 0.85rem;">
+        <tr><td style="color:#888">drwx------</td><td style="color:#888">2</td><td style="color:#888">dang</td><td style="color:#888">4096</td><td style="color:#888">May 10</td><td class="dir">.</td></tr>
+        <tr><td style="color:#888">drwxr-xr-x</td><td style="color:#888">10</td><td style="color:#888">dang</td><td style="color:#888">4096</td><td style="color:#888">May 10</td><td class="dir">..</td></tr>
+        <tr><td>-rwx------</td><td>1</td><td>dang</td><td>2048</td><td>May 12</td><td class="file">Burp_Suite_Pro</td></tr>
+        <tr><td>-rwx------</td><td>1</td><td>dang</td><td>1024</td><td>Apr 28</td><td class="file">Metasploit_Framework</td></tr>
+        <tr><td>-rwx------</td><td>1</td><td>dang</td><td>4096</td><td>Jun 01</td><td class="file">IDA_Pro_&_Ghidra</td></tr>
+        <tr><td>-rwx------</td><td>1</td><td>dang</td><td>1024</td><td>Mar 15</td><td class="file">Python_Scripting.py</td></tr>
+        <tr><td>-rwx------</td><td>1</td><td>dang</td><td>1024</td><td>Feb 20</td><td class="file">C_Cpp_Assembly</td></tr>
+        <tr><td>-rwx------</td><td>1</td><td>dang</td><td>1024</td><td>Jan 10</td><td class="file">Wireshark_Analysis</td></tr>
+      </table>
+  </div>
+  <div class="mobile-hint"><i class="fas fa-arrows-alt-h"></i> Swipe table to view details</div>
 </div>
             `,
 
@@ -244,20 +258,22 @@
   64 bytes from 127.0.0.1: icmp_seq=0 ttl=64 time=0.034 ms<br>
   <br>
   --- CONTACT INFO ---<br>
-  <table style="color: var(--neon-green); width: auto;">
-    <tr>
-      <td style="padding-right: 15px;">[+] Email:</td>
-      <td><a href="mailto:danghn0703@gmail.com">danghn0703@gmail.com</a></td>
-    </tr>
-    <tr>
-      <td style="padding-right: 15px;">[+] Github:</td>
-      <td><a href="https://github.com/DangNguyen003" target="_blank">github.com/DangNguyen003</a></td>
-    </tr>
-    <tr>
-      <td style="padding-right: 15px;">[+] Facebook:</td>
-      <td><a href="https://facebook.com/Hai.Dang.k66" target="_blank">Hải Đăng</a></td>
-    </tr>
-  </table>
+  <div class="table-container">
+      <table style="color: var(--neon-green); width: auto;">
+        <tr>
+          <td style="padding-right: 15px;">[+] Email:</td>
+          <td><a href="mailto:danghn0703@gmail.com">danghn0703@gmail.com</a></td>
+        </tr>
+        <tr>
+          <td style="padding-right: 15px;">[+] Github:</td>
+          <td><a href="https://github.com/DangNguyen003" target="_blank">github.com/DangNguyen003</a></td>
+        </tr>
+        <tr>
+          <td style="padding-right: 15px;">[+] Facebook:</td>
+          <td><a href="https://facebook.com/Hai.Dang.0703" target="_blank">Hai.Dang.0703</a></td>
+        </tr>
+      </table>
+  </div>
 </div>
             `
         };
@@ -278,49 +294,44 @@ Mounting file system... OK<br>
 Welcome, Guest. Select a module below to execute.<br>
         `;
 
-        /* --- 2. HÀM XỬ LÝ TERMINAL --- */
+        /* --- XỬ LÝ TERMINAL --- */
         const outputDiv = document.getElementById('output');
         const terminalWindow = document.getElementById('terminal');
         const promptHTML = '<span class="prompt">root@dang:~/portfolio$</span>';
 
-        // Hàm in ra màn hình
         function print(html) {
             const line = document.createElement('div');
             line.className = 'command-output';
             line.innerHTML = html;
             outputDiv.appendChild(line);
-            // Cuộn xuống cuối
             terminalWindow.scrollTop = terminalWindow.scrollHeight;
         }
 
-        // Hàm chạy lệnh
         function execCmd(cmd) {
-            // 1. Tìm key dựa trên lệnh
             let key = '';
             if(cmd.includes('about')) key = 'about';
             else if(cmd.includes('skills')) key = 'skills';
             else if(cmd.includes('writeups')) key = 'writeups';
             else if(cmd.includes('contact')) key = 'contact';
 
-            // 2. In dòng lệnh người dùng vừa chọn
+            // In lệnh
             print(promptHTML + ' ' + cmd);
 
-            // 3. Giả lập độ trễ xử lý (cho giống thật)
+            // Giả lập xử lý
             setTimeout(() => {
                 if (fileSystem[key]) {
                     print(fileSystem[key]);
                 } else {
                     print(`bash: ${cmd}: command not found`);
                 }
-            }, 300);
+            }, 250);
         }
 
-        // Chạy Intro khi load web
         window.onload = () => {
             print(introText);
         };
 
-        /* --- 3. HIỆU ỨNG MATRIX RAIN --- */
+        /* --- HIỆU ỨNG MATRIX RAIN --- */
         const canvas = document.getElementById('matrix');
         const ctx = canvas.getContext('2d');
 
