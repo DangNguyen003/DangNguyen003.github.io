@@ -9,12 +9,26 @@
     
     <style>
         /* --- 1. CẤU HÌNH GIAO DIỆN CHUNG --- */
-        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; /* Chống bôi đen text */ -webkit-user-select: none; }
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            user-select: none; -webkit-user-select: none;
+            
+            /* ẨN THANH CUỘN CHO FIREFOX/IE/EDGE */
+            scrollbar-width: none !important; 
+            -ms-overflow-style: none !important; 
+        }
+
+        /* ẨN THANH CUỘN CHO CHROME/SAFARI */
+        ::-webkit-scrollbar { 
+            display: none !important; 
+            width: 0 !important;
+            height: 0 !important;
+        }
 
         :root {
             --neon-green: #0f0;
-            --dark-bg: #000;
-            --terminal-bg: rgba(0, 10, 0, 0.9);
+            --dark-bg: #050505;
+            --terminal-bg: rgba(0, 15, 0, 0.93);
             --glitch-blue: #00ffff;
             --text-shadow: 0 0 4px var(--neon-green);
         }
@@ -24,14 +38,14 @@
             color: var(--neon-green);
             font-family: 'Fira Code', monospace;
             height: 100vh;
-            height: 100dvh; /* Fix lỗi chiều cao trên mobile */
+            height: 100dvh;
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        /* --- 2. HIỆU ỨNG NỀN (MATRIX & CRT) --- */
+        /* --- 2. HIỆU ỨNG NỀN --- */
         canvas#matrix { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
 
         .crt-overlay {
@@ -54,14 +68,13 @@
             width: 95%; max-width: 1000px; height: 90vh;
             border: 2px solid var(--neon-green);
             background: var(--terminal-bg);
-            box-shadow: 0 0 20px var(--neon-green), inset 0 0 20px rgba(0, 255, 0, 0.2);
+            box-shadow: 0 0 25px var(--neon-green), inset 0 0 20px rgba(0, 255, 0, 0.1);
             display: flex; flex-direction: column;
             position: relative; z-index: 5;
             border-radius: 4px;
-            backdrop-filter: blur(2px);
+            backdrop-filter: blur(3px);
         }
 
-        /* Thanh tiêu đề trên cùng */
         .system-bar {
             background: var(--neon-green); color: #000;
             padding: 8px 15px; font-weight: bold; font-size: 0.85rem;
@@ -70,30 +83,21 @@
         }
         .blink-led { animation: blink 1s infinite; color: #c00; margin-right: 6px; }
 
-        /* Khu vực hiển thị nội dung */
         .terminal-window {
             flex: 1; padding: 20px; 
-            overflow-y: auto; 
-            overflow-x: hidden;
+            overflow-y: scroll; /* Vẫn cho phép cuộn nhưng thanh cuộn bị ẩn bởi CSS trên */
             font-size: 1rem; 
             text-shadow: var(--text-shadow);
             scroll-behavior: smooth;
         }
 
-        /* Thanh cuộn tùy chỉnh */
-        .terminal-window::-webkit-scrollbar { width: 6px; }
-        .terminal-window::-webkit-scrollbar-thumb { background: var(--neon-green); border-radius: 3px; }
-        .terminal-window::-webkit-scrollbar-track { background: #001100; }
-
-        /* Dòng lệnh & Con trỏ */
-        .input-line { display: flex; align-items: center; flex-wrap: wrap; margin-top: 10px;}
+        .input-line { display: flex; align-items: center; flex-wrap: wrap; }
         .prompt { color: var(--glitch-blue); margin-right: 10px; font-weight: bold; }
         .cursor { 
             display: inline-block; width: 10px; height: 18px; 
             background: var(--neon-green); animation: blink-block 1s infinite; 
         }
 
-        /* Định dạng văn bản nội dung */
         .command-output { margin-bottom: 20px; line-height: 1.5; width: 100%; }
         
         .ascii-art { 
@@ -106,12 +110,12 @@
         .file { color: #fff; font-weight: bold; }
         .dir { color: var(--glitch-blue); font-weight: bold; }
         
-        a { color: var(--glitch-blue); text-decoration: none; border-bottom: 1px dashed var(--glitch-blue); transition: 0.2s; pointer-events: auto; cursor: pointer; }
+        a { color: var(--glitch-blue); text-decoration: none; border-bottom: 1px dashed var(--glitch-blue); transition: 0.2s; pointer-events: auto; cursor: pointer;}
         a:hover { background: var(--glitch-blue); color: #000; }
 
-        /* Bảng dữ liệu (Skills) */
-        .table-container { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; } 
-        table { width: 100%; border-collapse: collapse; min-width: 600px; } 
+        /* Bảng dữ liệu */
+        .table-container { width: 100%; overflow-x: scroll; } /* Cho phép cuộn ngang ẩn thanh */
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
         td { padding: 2px 15px 2px 0; vertical-align: top; white-space: nowrap; }
 
         /* --- 4. THANH ĐIỀU HƯỚNG --- */
@@ -126,7 +130,7 @@
             color: var(--neon-green); padding: 15px;
             font-family: 'Fira Code', monospace; font-size: 1rem; font-weight: bold;
             cursor: pointer; transition: 0.2s; text-transform: uppercase;
-            pointer-events: auto; /* Đảm bảo bấm được dù body chặn select */
+            pointer-events: auto;
         }
         .glitch-btn:last-child { border-right: none; }
         .glitch-btn:active, .glitch-btn:hover { 
@@ -137,44 +141,38 @@
         @keyframes blink { 50% { opacity: 0; } }
         @keyframes blink-block { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        /* --- 5. TỐI ƯU CHO ĐIỆN THOẠI (MOBILE RESPONSIVE) --- */
+        /* --- 5. MOBILE RESPONSIVE --- */
         @media (max-width: 768px) {
-            /* Full màn hình, bỏ viền để tăng diện tích hiển thị */
             .container { 
                 width: 100%; height: 100dvh; 
                 border: none; border-radius: 0; 
                 box-shadow: none;
-                background: rgba(0, 10, 0, 0.85); /* Trong suốt hơn chút để thấy Matrix */
             }
-            
             .system-bar { padding: 5px 10px; font-size: 0.7rem; }
-            
-            /* Font chữ vừa phải, dễ đọc trên mobile */
-            .terminal-window { padding: 10px; font-size: 0.9rem; }
-            
-            /* Thu nhỏ Logo ASCII để không bị vỡ */
+            .terminal-window { padding: 10px; font-size: 0.85rem; }
             .ascii-art { font-size: 5px; line-height: 6px; } 
             
-            /* Nút bấm to hơn, chia 2 hàng */
             .cyber-nav { flex-wrap: wrap; }
             .glitch-btn { 
                 width: 50%; flex: auto; 
                 border-bottom: 1px solid var(--neon-green); 
                 border-right: 1px solid var(--neon-green);
-                padding: 15px 5px; /* Tăng vùng bấm */
-                font-size: 0.9rem;
+                padding: 12px 5px;
             }
             .glitch-btn:nth-child(even) { border-right: none; }
             .glitch-btn:nth-last-child(-n+2) { border-bottom: none; } 
 
-            .prompt { font-size: 0.85rem; margin-right: 5px; }
+            .prompt { font-size: 0.8rem; margin-right: 5px; }
+            .cursor { height: 14px; width: 8px; }
             .mobile-hint { display: block !important; color: #666; font-size: 0.7rem; margin-top: 5px; font-style: italic; }
         }
         
         .mobile-hint { display: none; }
     </style>
 </head>
-<body oncontextmenu="return false;"> <canvas id="matrix"></canvas>
+<body oncontextmenu="return false;">
+
+    <canvas id="matrix"></canvas>
     <div class="crt-overlay"></div>
 
     <div class="container">
@@ -200,27 +198,16 @@
     </div>
 
     <script>
-        /* --- 1. CHỐNG SAO CHÉP (SECURITY) --- */
+        /* --- CHỐNG COPY --- */
         document.addEventListener('keydown', function(e) {
-            // Chặn F12
             if (e.keyCode == 123) { e.preventDefault(); return false; }
-            
-            // Chặn Ctrl+Shift+I (Inspect), Ctrl+Shift+J (Console), Ctrl+Shift+C (Element)
-            if (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) {
-                e.preventDefault(); return false;
-            }
-            
-            // Chặn Ctrl+U (View Source)
+            if (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) { e.preventDefault(); return false; }
             if (e.ctrlKey && e.keyCode == 85) { e.preventDefault(); return false; }
-
-            // Chặn Ctrl+S (Save)
             if (e.ctrlKey && e.keyCode == 83) { e.preventDefault(); return false; }
         });
-
-        // Chặn chọn văn bản (Text Selection)
         document.onselectstart = function() { return false; };
 
-        /* --- 2. DỮ LIỆU NỘI DUNG --- */
+        /* --- DỮ LIỆU --- */
         const fileSystem = {
             'about': `
 <div style="margin-bottom: 10px;">
@@ -259,13 +246,10 @@
             'writeups': `
 <div style="margin-bottom: 10px;">
   <span class="highlight">>> CAT WRITEUPS.LOG</span><br><br>
-  
   <span style="color:#888">[2024-05-12]</span> <a href="#" target="_blank">Breaking_SecureAuth_Bypass.pdf</a><br>
   &nbsp;&nbsp;> Critical logic flaw found in bounty program.<br><br>
-
   <span style="color:#888">[2024-03-15]</span> <a href="#" target="_blank">DEFCON_CTF_Crypto_Writeup.txt</a><br>
   &nbsp;&nbsp;> Solving RSA Padding Oracle attacks.<br><br>
-
   <span style="color:#888">[2024-02-20]</span> <a href="#" target="_blank">Advanced_Malware_Analysis.md</a><br>
   &nbsp;&nbsp;> Dissecting APT persistence mechanisms.<br>
 </div>
@@ -290,7 +274,7 @@
         </tr>
         <tr>
           <td style="padding-right: 15px;">[+] Facebook:</td>
-          <td><a href="https://facebook.com/Hai.Dang.k66" target="_blank">Hải.Đăng</a></td>
+          <td><a href="https://facebook.com/Hai.Dang.0703" target="_blank">Hai.Dang.0703</a></td>
         </tr>
       </table>
   </div>
@@ -314,7 +298,6 @@ Mounting file system... OK<br>
 Welcome, Guest. Select a module below to execute.<br>
         `;
 
-        /* --- 3. LOGIC TERMINAL --- */
         const outputDiv = document.getElementById('output');
         const terminalWindow = document.getElementById('terminal');
         const promptHTML = '<span class="prompt">root@dang:~/portfolio$</span>';
@@ -334,10 +317,8 @@ Welcome, Guest. Select a module below to execute.<br>
             else if(cmd.includes('writeups')) key = 'writeups';
             else if(cmd.includes('contact')) key = 'contact';
 
-            // In lệnh
             print(promptHTML + ' ' + cmd);
 
-            // Giả lập độ trễ xử lý
             setTimeout(() => {
                 if (fileSystem[key]) {
                     print(fileSystem[key]);
@@ -351,7 +332,7 @@ Welcome, Guest. Select a module below to execute.<br>
             print(introText);
         };
 
-        /* --- 4. HIỆU ỨNG MATRIX RAIN --- */
+        /* --- MATRIX RAIN --- */
         const canvas = document.getElementById('matrix');
         const ctx = canvas.getContext('2d');
 
