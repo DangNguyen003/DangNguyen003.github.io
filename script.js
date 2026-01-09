@@ -1,160 +1,206 @@
-/* --- 1. MATRIX RAIN EFFECT --- */
+/* --- 1. CONFIG & DATA --- */
+const bgMusic = document.getElementById("bg-music");
+const terminal = document.getElementById("terminal");
+const output = document.getElementById("output");
+let isMusicPlaying = false;
+
+// DỮ LIỆU NỘI DUNG 
+const data = {
+    'about': `
+    <div class="dossier-container">
+        <div class="avatar-frame">
+            <i class="fas fa-user-secret"></i>
+        </div>
+        <div class="dossier-info">
+            <h3 style="color:var(--cyan); margin-bottom:10px;">>> PERSONNEL_FILE: #8492</h3>
+            <div><span class="label">CODENAME:</span> <span class="value">DangNguyen003</span></div>
+            <div><span class="label">REAL NAME:</span> <span class="value">Nguyen Hai Dang</span></div>
+            <div><span class="label">LOCATION:</span> <span class="value">Vietnam</span></div>
+            <div><span class="label">ROLE:</span> <span class="value">Security Researcher</span></div>
+            <div><span class="label">STATUS:</span> <span class="value" style="color:#0f0">[ONLINE]</span></div>
+            <br>
+            <div style="font-size:0.9rem; color:#ccc;">
+                [BIO_SUMMARY]<br>
+                Passionate about offensive security and reverse engineering. 
+                Currently focusing on Web Exploitation and expanding knowledge in Malware Analysis.
+                <br><br>
+                "I break code to make it stronger."
+            </div>
+        </div>
+    </div>
+    `,
+
+    'skills': `
+    <div>
+        <span style="color:#0f0">root@dang:~/skills#</span> ./scan_capabilities.exe<br>
+        <br>
+        <div class="skill-category">>> WEB_EXPLOITATION</div>
+        <div class="skill-row"><span>Burp Suite Pro</span> <span class="progress-bar">[██████████] 100%</span></div>
+        <div class="skill-row"><span>SQL Injection</span> <span class="progress-bar">[████████░░] 80%</span></div>
+        <div class="skill-row"><span>XSS / CSRF</span> <span class="progress-bar">[█████████░] 90%</span></div>
+        
+        <div class="skill-category">>> PROGRAMMING</div>
+        <div class="skill-row"><span>Python (Auto)</span> <span class="progress-bar">[█████████░] 90%</span></div>
+        <div class="skill-row"><span>JavaScript</span> <span class="progress-bar">[███████░░░] 70%</span></div>
+        <div class="skill-row"><span>C / C++</span> <span class="progress-bar">[█████░░░░░] 50%</span></div>
+
+        <div class="skill-category">>> SYSTEM & TOOLS</div>
+        <div class="skill-row"><span>Linux (Kali)</span> <span class="progress-bar">[████████░░] 80%</span></div>
+        <div class="skill-row"><span>Docker</span> <span class="progress-bar">[██████░░░░] 60%</span></div>
+        <br>
+        <span style="color:#888">>> Analysis complete. 8 modules loaded.</span>
+    </div>
+    `,
+
+    'contact': `
+    <div style="margin-top:10px;">
+        <span style="color:#f00; font-weight:bold;">>> INITIATING ENCRYPTED HANDSHAKE...</span><br>
+        <br>
+        <table style="width:100%; color:#ccc;">
+            <tr>
+                <td style="width:30px;"><i class="fas fa-envelope" style="color:var(--cyan)"></i></td>
+                <td>EMAIL:</td>
+                <td><a href="mailto:danghn0703@gmail.com">danghn0703@gmail.com</a></td>
+            </tr>
+            <tr>
+                <td><i class="fab fa-github" style="color:var(--cyan)"></i></td>
+                <td>GITHUB:</td>
+                <td><a href="https://github.com/DangNguyen003" target="_blank">DangNguyen003</a></td>
+            </tr>
+            <tr>
+                <td><i class="fab fa-facebook" style="color:var(--cyan)"></i></td>
+                <td>SOCIAL:</td>
+                <td><a href="https://facebook.com/Hai.Dang.0703" target="_blank">Hai Dang</a></td>
+            </tr>
+        </table>
+        <br>
+        <span style="color:#0f0">>> Connection established. Waiting for input...</span>
+    </div>
+    `
+};
+
+// Dữ liệu Writeups (Thêm bài viết mới vào đây)
+const writeupsData = [
+    { date: "May 2024", title: "Bypassing 2FA Mechanism", tag: "LOGIC_BUG", desc: "How I skipped OTP verification on a major e-commerce site." },
+    { date: "Apr 2024", title: "SQLi to RCE via Upload", tag: "CRITICAL", desc: "Chaining vulnerabilities to get shell access." },
+    { date: "Mar 2024", title: "Understanding Heap Overflow", tag: "BINARY", desc: "Deep dive into dynamic memory allocation attacks." },
+    { date: "Feb 2024", title: "Android App Reverse Eng", tag: "MOBILE", desc: "Decompiling APK to find hardcoded API Keys." }
+];
+
+/* --- 2. MUSIC CONTROL --- */
+function toggleMusic() {
+    const btn = document.getElementById("music-control");
+    if (isMusicPlaying) {
+        bgMusic.pause();
+        btn.innerHTML = '<i class="fas fa-volume-mute"></i> MUSIC: OFF';
+        btn.style.boxShadow = "none";
+    } else {
+        bgMusic.volume = 0.5;
+        bgMusic.play().catch(e => console.log("Audio play blocked by browser"));
+        btn.innerHTML = '<i class="fas fa-music"></i> MUSIC: ON';
+        btn.style.boxShadow = "0 0 10px #0ff";
+    }
+    isMusicPlaying = !isMusicPlaying;
+}
+
+/* --- 3. BOOT SEQUENCE & FUNCTIONS --- */
+const asciiArt = `
+<div class="ascii-art">
+  ██████╗  █████╗ ███╗   ██╗ ██████╗ 
+  ██╔══██╗██╔══██╗████╗  ██║██╔════╝ 
+  ██║  ██║███████║██╔██╗ ██║██║  ███╗
+  ██║  ██║██╔══██║██║╚██╗██║██║   ██║
+  ██████╔╝██║  ██║██║ ╚████║╚██████╔╝
+  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝ 
+  >> SYSTEM READY. MODE: CYBERPUNK
+</div>`;
+
+document.getElementById("boot-screen").addEventListener("click", function() {
+    this.style.opacity = "0";
+    setTimeout(() => { 
+        this.style.display = "none"; 
+        document.getElementById("main-interface").style.display = "flex";
+        toggleMusic(); // Tự động bật nhạc
+        printHTML(asciiArt);
+        setTimeout(() => printHTML("Welcome back, Nguyen Hai Dang."), 500);
+    }, 500);
+});
+
+function renderWriteups() {
+    let gridHtml = '<div class="writeup-grid">';
+    writeupsData.forEach(w => {
+        gridHtml += `
+        <div class="card" onclick="alert('Đang cập nhật link bài viết: ${w.title}')">
+            <span class="date">[${w.date}]</span>
+            <h3>${w.title}</h3>
+            <div style="font-size:0.85rem; color:#aaa; margin-bottom:10px; height: 40px; overflow:hidden;">${w.desc}</div>
+            <span class="tag">${w.tag}</span>
+        </div>`;
+    });
+    gridHtml += '</div>';
+    return gridHtml;
+}
+
+function printHTML(content) {
+    const line = document.createElement("div");
+    line.className = "command-output";
+    line.innerHTML = content;
+    output.appendChild(line);
+    terminal.scrollTop = terminal.scrollHeight;
+}
+
+function execCmd(cmd) {
+    // In lệnh ra màn hình
+    const cmdLine = document.createElement("div");
+    cmdLine.innerHTML = `<span class="prompt">root@dang:~/portfolio$</span> ${cmd}`;
+    output.appendChild(cmdLine);
+
+    // Xử lý lệnh
+    setTimeout(() => {
+        if (cmd.includes('about')) {
+            printHTML(data.about);
+        } else if (cmd.includes('skills')) {
+            printHTML(data.skills);
+        } else if (cmd.includes('writeups')) {
+            printHTML(renderWriteups());
+        } else if (cmd.includes('contact') || cmd.includes('ping')) {
+            printHTML(data.contact);
+        } else if (cmd.includes('clear')) {
+            output.innerHTML = '';
+            printHTML(asciiArt);
+        } else {
+            printHTML(`bash: ${cmd}: command not found`);
+        }
+    }, 200);
+}
+
+/* --- 4. MATRIX RAIN EFFECT --- */
 const canvas = document.getElementById('matrix');
 const ctx = canvas.getContext('2d');
-
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-}
+function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
 const chars = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const fontSize = 14;
 const columns = canvas.width / fontSize;
-const rainDrops = Array(Math.floor(columns)).fill(1);
+const drops = Array(Math.floor(columns)).fill(1);
 
-function drawMatrix() {
+function draw() {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
     ctx.fillStyle = '#0F0';
     ctx.font = fontSize + 'px monospace';
-
-    for(let i = 0; i < rainDrops.length; i++) {
-        const text = chars.charAt(Math.floor(Math.random() * chars.length));
-        ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
-
-        if(rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-            rainDrops[i] = 0;
-        }
-        rainDrops[i]++;
+    for(let i=0; i<drops.length; i++) {
+        const text = chars.charAt(Math.floor(Math.random()*chars.length));
+        ctx.fillText(text, i*fontSize, drops[i]*fontSize);
+        if(drops[i]*fontSize > canvas.height && Math.random() > 0.975) drops[i]=0;
+        drops[i]++;
     }
 }
-setInterval(drawMatrix, 30);
+setInterval(draw, 40);
 
-/* --- 2. TERMINAL LOGIC (ĐÃ SỬA LỖI) --- */
-
-// Dữ liệu nội dung (Bạn sửa thông tin của mình ở đây)
-const data = {
-    'intro': `
-<div class="ascii-art">
-  _   _    _    ___   ___   _    _   _  _____ 
- | \\ | |  / \\  |_ _| |   \\ | |  | \\ | ||  __ |
- |  \\| | / _ \\  | |  | |\\ \\| |  |  \\| || |  \\|
- | |\\  |/ ___ \\ | |  | | \\ | |  | |\\  || |__  
- |_| \\_/_/   \\_\\___| |_|  \\__|  |_| \\_||_____|
- 
- Security Researcher | CTF Player
-</div>
-<br>
-System initialized...<br>
-Loading kernel modules... OK<br>
-Mounting file system... OK<br>
-Welcome, Guest. Type a command or click the buttons below.<br>
-<br>
-`,
-    'about': `
-----------------------------------------
-IDENTITY: Nguyen Hai Dang
-ROLE: Security Researcher / CTF Player
-LOCATION: Vietnam
-----------------------------------------
-[+] Passionate about breaking things to secure them.
-[+] Focus: Web Security, Reverse Engineering, Binary Exploitation.
-[+] Objective: Sharing knowledge & Strengthening community defense.
-<br>
-`,
-    'skills': `
-drwx------  2 dang dang  4096 May 10 10:00 .
-drwxr-xr-x 10 dang dang  4096 May 10 10:00 ..
--rwx------  1 dang dang  2048 <span class="file">Burp_Suite_Pro</span>
--rwx------  1 dang dang  1024 <span class="file">Metasploit_Framework</span>
--rwx------  1 dang dang  4096 <span class="file">IDA_Pro_&_Ghidra</span>
--rwx------  1 dang dang  1024 <span class="file">Python_Scripting.py</span>
--rwx------  1 dang dang  1024 <span class="file">C_Cpp_Assembly</span>
--rwx------  1 dang dang  1024 <span class="file">Wireshark_Analysis</span>
-<br>
-`,
-    'writeups': `
-[2024-05-12] <a href="#" style="color:#00ffff; text-decoration: underline;">Breaking_SecureAuth_Bypass.pdf</a>
-             > Critical logic flaw found in bounty program.
-             
-[2024-03-15] <a href="#" style="color:#00ffff; text-decoration: underline;">DEFCON_CTF_Crypto_Writeup.txt</a>
-             > Solving RSA Padding Oracle attacks.
-             
-[2024-02-20] <a href="#" style="color:#00ffff; text-decoration: underline;">Advanced_Malware_Analysis.md</a>
-             > Dissecting APT persistence mechanisms.
-<br>
-`,
-    'contact': `
-PING gmail.com (142.250.1.1) 56(84) bytes of data.
-64 bytes from danghn0703@gmail.com: icmp_seq=1 ttl=116 time=14.2 ms
-
---- CONTACT INFO ---
-[+] Email: <a href="mailto:danghn0703@gmail.com" style="color:#fff">danghn0703@gmail.com</a>
-[+] Github: github.com/DangNguyen003
-[+] Facebook: facebook.com/Hai.Dang.k66
-<br>
-`
-};
-
-const outputDiv = document.getElementById('output');
-const terminalWindow = document.querySelector('.terminal-window');
-const promptText = '<span class="prompt">root@dang:~/portfolio$</span>';
-
-// Hàm ghi nội dung vào màn hình
-function printLine(html, isCommand = false) {
-    const line = document.createElement('div');
-    line.className = 'command-output';
-    
-    if (isCommand) {
-        line.innerHTML = promptText + html;
-    } else {
-        line.innerHTML = html;
-    }
-    
-    outputDiv.appendChild(line);
-    
-    // Tự động cuộn xuống
-    terminalWindow.scrollTop = terminalWindow.scrollHeight;
-}
-
-// Chạy lệnh khi bấm nút
-function runCommand(cmd) {
-    // 1. Xác định nội dung cần hiển thị
-    let key = '';
-    if(cmd.includes('about')) key = 'about';
-    else if(cmd.includes('skills')) key = 'skills';
-    else if(cmd.includes('writeups')) key = 'writeups';
-    else if(cmd.includes('contact')) key = 'contact';
-
-    // 2. Hiệu ứng gõ lệnh vào dòng input ảo (cho đẹp)
-    const inputCursor = document.querySelector('.input-line .cursor');
-    const inputPrompt = document.querySelector('.input-line');
-    
-    // Ẩn con trỏ nhấp nháy tạm thời và hiện lệnh
-    inputCursor.style.display = 'none';
-    inputPrompt.innerHTML += cmd;
-
-    // 3. Sau 300ms thì đẩy lên lịch sử và hiện nội dung
-    setTimeout(() => {
-        // Xóa dòng input ảo đi (reset về ban đầu)
-        inputPrompt.innerHTML = `${promptText}<span class="cursor">_</span>`;
-        
-        // In dòng lệnh vào lịch sử
-        printLine(cmd, true);
-        
-        // In nội dung kết quả
-        if(data[key]) {
-            printLine(data[key]);
-        } else {
-            printLine(`bash: ${cmd}: command not found`);
-        }
-    }, 300);
-}
-
-// Khởi động: In intro
-window.onload = () => {
-    printLine(data['intro']);
-};
+// Đồng hồ
+setInterval(() => {
+    document.getElementById("clock").innerText = new Date().toLocaleTimeString();
+}, 1000);
